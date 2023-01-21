@@ -30,4 +30,10 @@ export class BoardsService {
       board.id == id;
     });
   }
+
+  deleteBoardById(id: string): void {
+    this.boards = this.boards.filter((board) => {
+      board.id != id;
+    });
+  }
 }
