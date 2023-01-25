@@ -8,6 +8,8 @@ import {
   Param,
   Patch,
   Post,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Board, BoardStatus } from './boards.model';
 
@@ -21,6 +23,7 @@ export class BoardsController {
   }
 
   @Post('/')
+  @UsePipes(ValidationPipe) // Handler-level의 유효성 체크 Pipe
   createBoard(@Body() createBoardDto: CreateBoardDto): Board {
     return this.boardsService.createBoard(createBoardDto);
   }
