@@ -1,4 +1,4 @@
-import { BoardStatus } from './boards.model';
+import { BoardStatus } from './boards-status.enum';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 /* 다음 column들을 가진 Board 테이블이 어플리케이션 실행 시 자동으로 생성됨 */

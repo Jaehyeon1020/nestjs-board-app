@@ -7,12 +7,14 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Board, BoardStatus } from './boards.model';
+import { BoardStatus } from './boards-status.enum';
+import { Board } from './board.entity';
 
 @Controller('boards')
 export class BoardsController {
@@ -25,25 +27,25 @@ export class BoardsController {
 
   @Post('/')
   @UsePipes(ValidationPipe) // Handler-level의 유효성 체크 Pipe
-  createBoard(@Body() createBoardDto: CreateBoardDto): Board {
+  createBoard(@Body() createBoardDto: CreateBoardDto): Promise<Board> {
     return this.boardsService.createBoard(createBoardDto);
   }
 
   @Get('/:id')
-  getBoardById(@Param('id') id: string): Board {
+  getBoardById(@Param('id') id: number): Promise<Board> {
     return this.boardsService.getBoardById(id);
   }
 
   @Delete('/:id')
-  deletePostById(@Param('id') id: string): void {
+  deletePostById(@Param('id', ParseIntPipe) id: number) {
     this.boardsService.deleteBoardById(id);
   }
 
   @Patch('/:id/status')
   updateBoardStatus(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body('status', BoardStatusValidationPipe) status: BoardStatus,
-  ): Board {
+  ) {
     return this.boardsService.updateBoardStatus(id, status);
   }
 }

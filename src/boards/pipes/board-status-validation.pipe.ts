@@ -1,4 +1,4 @@
-import { BoardStatus } from './../boards.model';
+import { BoardStatus } from '../boards-status.enum';
 import { BadRequestException, PipeTransform } from '@nestjs/common';
 
 export class BoardStatusValidationPipe implements PipeTransform {

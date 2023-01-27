@@ -1,58 +1,62 @@
+import { BoardRepository } from './board.repository';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Board, BoardStatus } from './boards.model';
+import { BoardStatus } from './boards-status.enum';
 import { v1 as uuid } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Board } from './board.entity';
 
 @Injectable()
 export class BoardsService {
-  private boards: Board[] = [];
+  /* 만들어둔 게시판 repo를 service에서 사용할 수 있도록 만들기 */
+  constructor(
+    @InjectRepository(Board)
+    private boardRepository: BoardRepository,
+  ) {}
 
-  getAllBoards(): Board[] {
-    return this.boards;
+  async getAllBoards(): Promise<Board[]> {
+    return await this.boardRepository.find();
   }
 
-  createBoard(createBoardDto: CreateBoardDto): Board {
+  async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
     const { title, description } = createBoardDto;
 
-    const board: Board = {
-      id: uuid(),
-      title,
-      description,
+    const board = this.boardRepository.create({
+      title: title,
+      description: description,
       status: BoardStatus.PUBLIC,
-    };
+    });
 
-    this.boards.push(board);
+    await this.boardRepository.save(board);
     return board;
   }
 
-  getBoardById(id: string): Board {
-    const found = this.boards.find((board) => board.id === id);
-
+  async getBoardById(id: number): Promise<Board> {
+    const found = await this.boardRepository.findOneBy({ id });
     if (!found) {
       throw new NotFoundException(
         `ID ${id}에 해당하는 게시글을 찾을 수 없습니다.`,
       ); // NestJS에 미리 정의되어있는 예외
     }
-
     return found;
   }
 
-  deleteBoardById(id: string): void {
-    const found = this.getBoardById(id);
+  async deleteBoardById(id: number): Promise<void> {
+    const result = await this.boardRepository.delete(id);
 
-    if (!found) {
+    if (result.affected === 0) {
       throw new NotFoundException(
-        `ID ${id}에 해당하는 게시글을 찾을 수 없습니다.`,
+        '삭제하려고 하는 게시물과 일치하는 id가 없습니다.',
       );
     }
-
-    this.boards = this.boards.filter((board) => board.id !== found.id);
   }
 
-  updateBoardStatus(id: string, status: BoardStatus): Board {
-    const board = this.getBoardById(id);
-    board.status = status;
+  async updateBoardStatus(id: number, status: BoardStatus): Promise<Board> {
+    const found = await this.getBoardById(id);
 
-    return board;
+    found.status = status;
+    this.boardRepository.save(found);
+
+    return found;
   }
 }
