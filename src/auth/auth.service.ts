@@ -2,18 +2,21 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { AuthCredentialDto } from './dto/auth-credential.dto';
 import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async createUser(authCredential: AuthCredentialDto): Promise<void> {
@@ -34,14 +37,19 @@ export class AuthService {
     }
   }
 
-  async login(authCredential: AuthCredentialDto): Promise<string> {
+  async login(
+    authCredential: AuthCredentialDto,
+  ): Promise<{ accessToken: string }> {
     const { username, password } = authCredential;
     const user = this.userRepository.findOneBy({ username });
 
     if (user && (await bcrypt.compare(password, (await user).password))) {
-      return '로그인 성공';
+      const payload = { username };
+      const accessToken = await this.jwtService.sign(payload);
+
+      return { accessToken };
     } else {
-      return '로그인 실패';
+      throw new UnauthorizedException('로그인 실패');
     }
   }
 }
