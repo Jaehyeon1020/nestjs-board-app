@@ -1,6 +1,13 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 
 @Entity()
+@Unique(['username']) // username이 중복되지 않도록 DB단에서 체크
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
