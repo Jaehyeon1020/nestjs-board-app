@@ -54,13 +54,17 @@ export class BoardsService {
     return found;
   }
 
-  async deleteBoardById(id: number): Promise<void> {
+  async deleteBoardById(id: number, user: User): Promise<void> {
+    const matching = user.boards.filter((board) => board.id === id); // 이 유저가 주어진 id에 해당하는 게시글을 소유하고 있는지 확인
+
+    if (!matching) {
+      throw new NotFoundException('게시물 삭제 권한이 없습니다.');
+    }
+
     const result = await this.boardRepository.delete(id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(
-        '삭제하려고 하는 게시물과 일치하는 id가 없습니다.',
-      );
+      throw new NotFoundException('게시물이 존재하지 않습니다.');
     }
   }
 

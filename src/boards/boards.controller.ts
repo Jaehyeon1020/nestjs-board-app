@@ -46,8 +46,8 @@ export class BoardsController {
   }
 
   @Delete('/:id')
-  deletePostById(@Param('id', ParseIntPipe) id: number) {
-    this.boardsService.deleteBoardById(id);
+  deletePostById(@Param('id', ParseIntPipe) id: number, @GetUser() user: User) {
+    this.boardsService.deleteBoardById(id, user);
   }
 
   @Patch('/:id/status')
