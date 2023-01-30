@@ -26,8 +26,9 @@ export class BoardsController {
   constructor(private boardsService: BoardsService) {}
 
   @Get('/')
-  getAllBoards() {
-    return this.boardsService.getAllBoards(); // service에서 요청을 처리
+  getAllBoards(@GetUser() user: User) {
+    // return this.boardsService.getAllBoards(); // service에서 요청을 처리
+    return this.boardsService.getUserBoards(user); // 지금 로그인되어있는 유저의 게시글만 보기
   }
 
   @Post('/')

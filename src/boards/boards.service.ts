@@ -18,6 +18,15 @@ export class BoardsService {
     return await this.boardRepository.find();
   }
 
+  async getUserBoards(user: User): Promise<Board[]> {
+    const query = this.boardRepository.createQueryBuilder('board');
+
+    query.where('board.userId = :userId', { userId: user.id });
+
+    const boards = await query.getMany(); // query문에 맞는 모든 entity 불러옴
+    return boards;
+  }
+
   async createBoard(
     createBoardDto: CreateBoardDto,
     user: User,
